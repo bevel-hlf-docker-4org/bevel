@@ -1,0 +1,38 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ourglassorg0-cacerts-job
+  namespace: ourglassorg0-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  interval: 1m
+  releaseName: ourglassorg0-cacerts-job
+  chart:
+    spec:
+      interval: 1m
+      sourceRef:
+        kind: GitRepository
+        name: flux-demo-fabric
+        namespace: flux-demo-fabric
+      chart: platforms/hyperledger-fabric/charts/generate_cacerts
+  values:
+    metadata:
+      name: ourglassorg0
+      component_name: ourglassorg0-net
+      namespace: ourglassorg0-net    
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.2
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+
+    vault:
+      role: vault-role
+      address: http://130.211.192.245:8200
+      authpath: demo-fabricourglassorg0-net-auth
+      secretcryptoprefix: secretsv2/data/crypto/peerOrganizations/ourglassorg0-net/ca
+      secretcredentialsprefix: secretsv2/data/credentials/ourglassorg0-net/ca/ourglassorg0
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      
+    ca:
+      subject: /C=GB/ST=London/L=London/O=Ourglassorg0/CN=ca.ourglassorg0-net
