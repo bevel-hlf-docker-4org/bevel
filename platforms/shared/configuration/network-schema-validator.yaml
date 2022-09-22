@@ -39,3 +39,9 @@
       file:
         path: "./build"
         state: absent
+    - name: k8s upgrade
+      shell: |
+        pip3 install --upgrade kubernetes
+    - name: GKE login
+      shell: |
+        /home/bevel/build/google-cloud-sdk/bin/gcloud auth activate-service-account ansible-blockchain@ourglass-dev.iam.gserviceaccount.com --key-file=/home/bevel/build/ourglass-dev-c295febea295.json --project=ourglass-dev

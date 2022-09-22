@@ -5,12 +5,14 @@ import (
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 
-	supplychain "github.com/chaincode/supplychain"
+	lglagrmt "github.com/chaincode/lglagrmt"
 )
 
 // main function starts up the chaincode in the container during instantiate
 func main() {
-	if err := shim.Start(new(supplychain.SmartContract)); err != nil {
-		fmt.Printf("Error starting supplychain chaincode: %s", err)
+	err := shim.Start(new(lglagrmt.SmartContract))
+
+	if err != nil {
+		fmt.Printf("Error starting lglagrmt chaincode: %s", err)
 	}
 }
