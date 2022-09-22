@@ -1,0 +1,39 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ourglassorg0-expressapi
+  namespace: ourglassorg0-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  interval: 1m
+  chart:
+   spec:
+    chart: examples/supplychain-app/charts/expressapp
+    sourceRef:
+      kind: GitRepository
+      name: flux-demo-fabric
+      namespace: flux-demo-fabric
+  releaseName: ourglassorg0fabric-expressapi
+  values:
+    nodeName: ourglassorg0-expressapi
+    metadata:
+      namespace: ourglassorg0-net
+    replicaCount: 1
+    expressapp:
+      serviceType: ClusterIP
+      image: index.docker.io/joseucarvajal/bevel-supplychain-fabric:express-app-stable
+      pullPolicy: Always
+      pullSecrets: regcred
+      nodePorts:
+        port: 3000
+        targetPort: 3000
+        name: tcp
+      env:
+        apiUrl: http://ourglassorg0-restserver.ourglassorg0-net:20001/api/v1
+    proxy:
+      provider: haproxy
+      name: ourglassorg0
+      type: fabric
+      external_url_suffix: ourglass.com
+      peer_name: peer1
