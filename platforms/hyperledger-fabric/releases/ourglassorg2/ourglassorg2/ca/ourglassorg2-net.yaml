@@ -1,0 +1,51 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ourglassorg2-net-ca
+  namespace: ourglassorg2-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  interval: 1m
+  releaseName: ourglassorg2-net-ca
+  chart:
+    spec:
+      interval: 1m
+      sourceRef:
+        kind: GitRepository
+        name: flux-demo-fabric
+        namespace: flux-demo-fabric
+      chart: platforms/hyperledger-fabric/charts/ca    
+  values:
+    metadata:
+      namespace: ourglassorg2-net
+      images:
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+        ca: hyperledger/fabric-ca:1.4.8
+ 
+    server:
+      name: ca
+      tlsstatus: true
+      admin: ourglassorg2-admin 
+  
+    storage:
+      storageclassname: ourglassorg2sc
+      storagesize: 512Mi
+    vault:
+      role: vault-role
+      address: http://104.154.176.16:8200
+      authpath: demo-fabricourglassorg2-net-auth
+      secretcert: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/ca?ca.ourglassorg2-net-cert.pem
+      secretkey: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/ca?ourglassorg2-net-CA.key
+      secretadminpass: secretsv2/data/credentials/ourglassorg2-net/ca/ourglassorg2?user
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+    service:
+      servicetype: ClusterIP
+      ports:
+        tcp:
+          port: 7054
+    proxy:
+      provider: haproxy
+      type: peer
+      external_url_suffix: ourglass.com
