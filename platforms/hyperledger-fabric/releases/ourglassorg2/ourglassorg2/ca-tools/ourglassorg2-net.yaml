@@ -1,0 +1,84 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ourglassorg2-net-ca-tools
+  namespace: ourglassorg2-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  interval: 1m
+  releaseName: ourglassorg2-net-ca-tools
+  chart:
+    spec:
+      interval: 1m
+      sourceRef:
+        kind: GitRepository
+        name: flux-demo-fabric
+        namespace: flux-demo-fabric
+      chart: platforms/hyperledger-fabric/charts/catools
+  values:
+    metadata:
+      namespace: ourglassorg2-net
+      name: ca-tools
+      component_type: peer
+      org_name: ourglassorg2
+      proxy: haproxy
+    replicaCount: 1
+
+    image:
+      repository: hyperledger/fabric-ca-tools
+      tag: 1.2.1
+      pullPolicy: IfNotPresent
+      alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+      
+    storage:
+      storageclassname: ourglassorg2sc
+      storagesize: 512Mi
+    
+    vault:
+      role: vault-role
+      address: http://104.154.176.16:8200
+      authpath: demo-fabricourglassorg2-net-auth
+      secretmsp: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/users/admin/msp
+      secrettls: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/users/admin/tls
+      secretorderer: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/orderers
+      secretpeer: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/peers
+      secretpeerorderertls: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/orderer/tls
+      secretambassador: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/ambassador
+      secretcert: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/ca?ca.ourglassorg2-net-cert.pem
+      secretkey: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/ca?ourglassorg2-net-CA.key
+      secretcouchdb: secretsv2/data/credentials/ourglassorg2-net/couchdb/ourglassorg2
+      secretconfigfile: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/msp/config
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+    
+    healthcheck: 
+      retries: 10
+      sleepTimeAfterError: 2
+
+    
+    org_data:
+      external_url_suffix: ourglass.com
+      component_subject: O=Ourglassorg2,OU=Ourglassorg2,L=51.50/-0.13/London,C=GB
+      cert_subject: O=Ourglassorg2/OU=Ourglassorg2/L=51.50,-0.13,London/C=GB
+      component_country: GB
+      component_state: London
+      component_location: London
+      ca_url: ca.ourglassorg2-net:7054
+
+    orderers:
+      name: orderer0-orderer1-orderer2-
+    orderers_info:
+      - name: orderer0
+        path: "certs/orderer0-ca.crt"
+      - name: orderer1
+        path: "certs/orderer1-ca.crt"
+      - name: orderer2
+        path: "certs/orderer2-ca.crt"
+
+    peers:
+      name: peer0,-peer1,-      
+    peer_count: "2"
+    checks:
+      refresh_cert_value: False
+      add_peer_value: False
