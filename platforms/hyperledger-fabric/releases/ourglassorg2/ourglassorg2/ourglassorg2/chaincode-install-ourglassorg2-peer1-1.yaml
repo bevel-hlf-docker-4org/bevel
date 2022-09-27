@@ -1,0 +1,57 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: chaincode-install-ourglassorg2-peer1-1
+  namespace: ourglassorg2-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  interval: 1m
+  releaseName: chaincode-install-ourglassorg2-peer1-1
+  chart:
+    spec:
+      interval: 1m
+      sourceRef:
+        kind: GitRepository
+        name: flux-demo-fabric
+        namespace: flux-demo-fabric
+      chart: platforms/hyperledger-fabric/charts/install_chaincode
+  values:
+    metadata:
+      namespace: ourglassorg2-net
+      network:
+        version: 2.2.2
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.2
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+    peer:
+      name: peer1
+      address: peer1.ourglassorg2-net:7051
+      localmspid: ourglassorg2MSP
+      loglevel: debug
+      tlsstatus: true
+    vault:
+      role: vault-role
+      address: http://104.154.176.16:8200
+      authpath: demo-fabricourglassorg2-net-auth
+      adminsecretprefix: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/users/admin 
+      orderersecretprefix: secretsv2/data/crypto/peerOrganizations/ourglassorg2-net/orderer
+      secretgitprivatekey: secretsv2/data/credentials/ourglassorg2-net/git
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      tls: false
+    orderer:
+      address: orderer2.ourglass.com:443
+    chaincode:
+      builder: hyperledger/fabric-ccenv:2.2.2
+      name: lglagrmt
+      version: 1
+      lang: golang
+      maindirectory: cmd
+      repository:
+        hostname: "github.com"
+        git_username: "joseucarvajal"
+        url: github.com/bevel-hlf-docker-4org/bevel.git
+        branch: main
+        path: examples/supplychain-app/fabric/chaincode_rest_server/chaincode/
+      endorsementpolicies:  ''
