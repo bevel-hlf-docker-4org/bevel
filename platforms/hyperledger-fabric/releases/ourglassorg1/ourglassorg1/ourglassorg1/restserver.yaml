@@ -1,0 +1,50 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ourglassorg1-restserver
+  namespace: ourglassorg1-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: ourglassorg1-restserver
+  interval: 1m
+  chart:
+   spec:
+    chart: examples/supplychain-app/charts/fabric-restserver
+    sourceRef:
+      kind: GitRepository
+      name: flux-demo-fabric
+      namespace: flux-demo-fabric
+  values:
+    metadata:
+      namespace: ourglassorg1-net
+    server:
+      name: ourglassorg1-restserver
+      port: 20001
+      localmspid: ourglassorg1MSP
+      image: index.docker.io/joseucarvajal/bevel-supplychain-fabric:rest-server-stable
+      username: admin
+      cert_path: "/secret/tls/admin.cert"
+      key_path: "/secret/tls/admin.pem"
+    storage:
+      storageclassname: ourglassorg1sc
+      storagesize: 512Mi
+    vault:
+      address: http://34.122.220.61:8200
+      role: vault-role
+      authpath: demo-fabricourglassorg1-net-auth
+      secretprefix: secretsv2/data/crypto/peerOrganizations/ourglassorg1-net
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      image: ghcr.io/hyperledger/alpine-utils:1.0
+    service:
+      servicetype: ClusterIP
+      ports:
+        apiPort: 20001
+        targetPort: 8000
+    connection:
+      peer: peer1.ourglassorg1-net
+      peerAddress: peer1.ourglassorg1-net
+      peerPort: 7051
+      ordererAddress: orderer0.ourglass.com
+      ordererPort: 443
