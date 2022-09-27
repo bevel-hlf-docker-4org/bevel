@@ -1,0 +1,50 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: approve-ourglassorg1-allchannel-peer0lglagrmt1-1
+  namespace: ourglassorg1-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  interval: 1m
+  releaseName: approve-ourglassorg1-allchannel-peer0lglagrmt1-1
+  chart:
+    spec:
+      interval: 1m
+      sourceRef:
+        kind: GitRepository
+        name: flux-demo-fabric
+        namespace: flux-demo-fabric
+      chart: platforms/hyperledger-fabric/charts/approve_chaincode
+  values:
+    metadata:
+      namespace: ourglassorg1-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.2
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+    peer:
+      name: peer0
+      address: peer0.ourglassorg1-net:7051
+      localmspid: ourglassorg1MSP
+      loglevel: debug
+      tlsstatus: true
+    vault:
+      role: vault-role
+      address: http://34.122.220.61:8200
+      authpath: demo-fabricourglassorg1-net-auth
+      adminsecretprefix: secretsv2/data/crypto/peerOrganizations/ourglassorg1-net/users/admin 
+      orderersecretprefix: secretsv2/data/crypto/peerOrganizations/ourglassorg1-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      tls: false
+    orderer:
+      address: orderer1.ourglass.com:443
+    chaincode:
+      builder: hyperledger/fabric-ccenv:2.2.2
+      name: lglagrmt
+      version: 1
+      sequence: 1
+      commitarguments: '\"init\",\"\"'
+      endorsementpolicies:  ''
+    channel:
+      name: allchannel
