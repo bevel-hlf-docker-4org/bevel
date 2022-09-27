@@ -1,0 +1,54 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: anchorpeer-allchannel-ourglassorg0
+  namespace: ourglassorg0-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  interval: 1m
+  releaseName: anchorpeer-allchannel-ourglassorg0
+  chart:
+    spec:
+      interval: 1m
+      sourceRef:
+        kind: GitRepository
+        name: flux-demo-fabric
+        namespace: flux-demo-fabric
+      chart: platforms/hyperledger-fabric/charts/anchorpeer
+  values:
+    metadata:
+      namespace: ourglassorg0-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.2
+        alpineutils: index.docker.io/hyperledgerlabs/alpine-utils:1.0
+
+    peer:
+      name: peer1
+      address: peer1.ourglassorg0-net.ourglass.com:443
+      localmspid: ourglassorg0MSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://130.211.192.245:8200
+      authpath: demo-fabricourglassorg0-net-auth
+      adminsecretprefix: secretsv2/data/crypto/peerOrganizations/ourglassorg0-net/users/admin
+      orderersecretprefix: secretsv2/data/crypto/peerOrganizations/ourglassorg0-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: allchannel      
+    orderer:
+      address: orderer0.ourglass.com:443
+    anchorstx: |-
+      CtQCChgKFggCGgYI9YzMmQYiCmFsbGNoYW5uZWwStwIKtAIKCmFsbGNoYW5uZWwSaBJmCgtBcHBs
+      aWNhdGlvbhJXCAESUwoPb3VyZ2xhc3NvcmcwTVNQEkAaBwoDTVNQEgAiCwoHUmVhZGVycxIAIgsK
+      B1dyaXRlcnMSACIKCgZBZG1pbnMSACIPCgtFbmRvcnNlbWVudBIAGrsBErgBCgtBcHBsaWNhdGlv
+      bhKoAQgBEqMBCg9vdXJnbGFzc29yZzBNU1ASjwEIARpDCgtBbmNob3JQZWVycxI0EioKKAojcGVl
+      cjAub3VyZ2xhc3NvcmcwLW5ldC5vdXJnbGFzcy5jb20Q+0EaBkFkbWlucxoHCgNNU1ASACIKCgZB
+      ZG1pbnMSACIPCgtFbmRvcnNlbWVudBIAIgsKB1JlYWRlcnMSACILCgdXcml0ZXJzEgAqBkFkbWlu
+      cw==
+
